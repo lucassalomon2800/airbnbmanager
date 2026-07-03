@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { apiUrl } from '../lib/api'
 
 const CATEGORIES = ['Ropa de Cama', 'Artículos de Tocador', 'Productos de Limpieza', 'Cocina', 'Muebles', 'Electrónica', 'Seguridad', 'Otro']
 
@@ -21,7 +22,7 @@ export default function Inventory() {
   const [saving, setSaving]       = useState(false)
   const [filterCat, setFilterCat] = useState('Todos')
 
-  const load = () => fetch('/api/inventory').then(r => r.json()).then(setItems)
+  const load = () => fetch(apiUrl('/api/inventory')).then(r => r.json()).then(setItems)
 
   useEffect(() => { load() }, [])
 
@@ -31,7 +32,7 @@ export default function Inventory() {
     e.preventDefault()
     if (!form.name || form.quantity === '') return
     setSaving(true)
-    await fetch('/api/inventory', {
+    await fetch(apiUrl('/api/inventory'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -47,7 +48,7 @@ export default function Inventory() {
 
   const adjustQuantity = async (item, delta) => {
     const quantity = Math.max(0, item.quantity + delta)
-    await fetch(`/api/inventory/${item.id}`, {
+    await fetch(apiUrl(`/api/inventory/${item.id}`), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ quantity }),
@@ -57,7 +58,7 @@ export default function Inventory() {
 
   const remove = async id => {
     if (!confirm('¿Eliminar este artículo del inventario?')) return
-    await fetch(`/api/inventory/${id}`, { method: 'DELETE' })
+    await fetch(apiUrl(`/api/inventory/${id}`), { method: 'DELETE' })
     load()
   }
 

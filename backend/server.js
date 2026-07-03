@@ -1,108 +1,96 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const { readSheet, writeSheet } = require('./sheets');
 
 const app = express();
-const PORT = 3001;
-const DB_PATH = path.join(__dirname, 'db.json');
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
-
-function readDB() {
-  return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-}
-
-function writeDB(data) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-}
 
 function calcNights(checkIn, checkOut) {
   return Math.max(0, Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000));
 }
 
 // ── Bookings ──────────────────────────────────────────────────────────────────
-app.get('/api/bookings', (req, res) => {
-  res.json(readDB().bookings);
+app.get('/api/bookings', async (req, res) => {
+  res.json(await readSheet('Bookings'));
 });
 
-app.post('/api/bookings', (req, res) => {
-  const db = readDB();
+app.post('/api/bookings', async (req, res) => {
+  const bookings = await readSheet('Bookings');
   const booking = { id: Date.now().toString(), ...req.body, createdAt: new Date().toISOString() };
-  db.bookings.push(booking);
-  writeDB(db);
+  bookings.push(booking);
+  await writeSheet('Bookings', bookings);
   res.json(booking);
 });
 
-app.put('/api/bookings/:id', (req, res) => {
-  const db = readDB();
-  const idx = db.bookings.findIndex(b => b.id === req.params.id);
+app.put('/api/bookings/:id', async (req, res) => {
+  const bookings = await readSheet('Bookings');
+  const idx = bookings.findIndex(b => b.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  db.bookings[idx] = { ...db.bookings[idx], ...req.body };
-  writeDB(db);
-  res.json(db.bookings[idx]);
+  bookings[idx] = { ...bookings[idx], ...req.body };
+  await writeSheet('Bookings', bookings);
+  res.json(bookings[idx]);
 });
 
-app.delete('/api/bookings/:id', (req, res) => {
-  const db = readDB();
-  db.bookings = db.bookings.filter(b => b.id !== req.params.id);
-  writeDB(db);
+app.delete('/api/bookings/:id', async (req, res) => {
+  const bookings = (await readSheet('Bookings')).filter(b => b.id !== req.params.id);
+  await writeSheet('Bookings', bookings);
   res.json({ success: true });
 });
 
 // ── Expenses / Investments ────────────────────────────────────────────────────
-app.get('/api/investments', (req, res) => {
-  res.json(readDB().investments);
+app.get('/api/investments', async (req, res) => {
+  res.json(await readSheet('Investments'));
 });
 
-app.post('/api/investments', (req, res) => {
-  const db = readDB();
+app.post('/api/investments', async (req, res) => {
+  const investments = await readSheet('Investments');
   const item = { id: Date.now().toString(), ...req.body, createdAt: new Date().toISOString() };
-  db.investments.push(item);
-  writeDB(db);
+  investments.push(item);
+  await writeSheet('Investments', investments);
   res.json(item);
 });
 
-app.delete('/api/investments/:id', (req, res) => {
-  const db = readDB();
-  db.investments = db.investments.filter(i => i.id !== req.params.id);
-  writeDB(db);
+app.delete('/api/investments/:id', async (req, res) => {
+  const investments = (await readSheet('Investments')).filter(i => i.id !== req.params.id);
+  await writeSheet('Investments', investments);
   res.json({ success: true });
 });
 
 // ── Inventory ─────────────────────────────────────────────────────────────────
-app.get('/api/inventory', (req, res) => {
-  res.json(readDB().inventory);
+app.get('/api/inventory', async (req, res) => {
+  res.json(await readSheet('Inventory'));
 });
 
-app.post('/api/inventory', (req, res) => {
-  const db = readDB();
+app.post('/api/inventory', async (req, res) => {
+  const inventory = await readSheet('Inventory');
   const item = { id: Date.now().toString(), ...req.body, createdAt: new Date().toISOString() };
-  db.inventory.push(item);
-  writeDB(db);
+  inventory.push(item);
+  await writeSheet('Inventory', inventory);
   res.json(item);
 });
 
-app.put('/api/inventory/:id', (req, res) => {
-  const db = readDB();
-  const idx = db.inventory.findIndex(i => i.id === req.params.id);
+app.put('/api/inventory/:id', async (req, res) => {
+  const inventory = await readSheet('Inventory');
+  const idx = inventory.findIndex(i => i.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  db.inventory[idx] = { ...db.inventory[idx], ...req.body };
-  writeDB(db);
-  res.json(db.inventory[idx]);
+  inventory[idx] = { ...inventory[idx], ...req.body };
+  await writeSheet('Inventory', inventory);
+  res.json(inventory[idx]);
 });
 
-app.delete('/api/inventory/:id', (req, res) => {
-  const db = readDB();
-  db.inventory = db.inventory.filter(i => i.id !== req.params.id);
-  writeDB(db);
+app.delete('/api/inventory/:id', async (req, res) => {
+  const inventory = (await readSheet('Inventory')).filter(i => i.id !== req.params.id);
+  await writeSheet('Inventory', inventory);
   res.json({ success: true });
 });
 
 // ── Summary ───────────────────────────────────────────────────────────────────
-app.get('/api/summary', (req, res) => {
-  const { bookings, investments } = readDB();
+app.get('/api/summary', async (req, res) => {
+  const [bookings, investments] = await Promise.all([readSheet('Bookings'), readSheet('Investments')]);
 
   const activeBookings = bookings.filter(b => b.status !== 'cancelled');
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { apiUrl } from '../lib/api'
 
 const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0)
 const nights = (ci, co) => Math.max(0, Math.ceil((new Date(co) - new Date(ci)) / 86400000))
@@ -20,7 +21,7 @@ export default function Bookings() {
   const [form, setForm]         = useState(EMPTY)
   const [saving, setSaving]     = useState(false)
 
-  const load = () => fetch('/api/bookings').then(r => r.json()).then(setBookings)
+  const load = () => fetch(apiUrl('/api/bookings')).then(r => r.json()).then(setBookings)
 
   useEffect(() => { load() }, [])
 
@@ -34,7 +35,7 @@ export default function Bookings() {
       return
     }
     setSaving(true)
-    await fetch('/api/bookings', {
+    await fetch(apiUrl('/api/bookings'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, nightlyRate: Number(form.nightlyRate) }),
@@ -46,7 +47,7 @@ export default function Bookings() {
 
   const remove = async id => {
     if (!confirm('¿Eliminar esta reserva?')) return
-    await fetch(`/api/bookings/${id}`, { method: 'DELETE' })
+    await fetch(apiUrl(`/api/bookings/${id}`), { method: 'DELETE' })
     load()
   }
 

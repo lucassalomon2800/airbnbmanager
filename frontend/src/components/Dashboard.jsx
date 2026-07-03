@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { apiUrl } from '../lib/api'
 
 const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0)
 const nights = (ci, co) => Math.max(0, Math.ceil((new Date(co) - new Date(ci)) / 86400000))
@@ -10,8 +11,8 @@ export default function Dashboard() {
   const [bookings, setBookings] = useState([])
 
   useEffect(() => {
-    fetch('/api/summary').then(r => r.json()).then(setSummary)
-    fetch('/api/bookings').then(r => r.json()).then(b => setBookings([...b].reverse().slice(0, 6)))
+    fetch(apiUrl('/api/summary')).then(r => r.json()).then(setSummary)
+    fetch(apiUrl('/api/bookings')).then(r => r.json()).then(b => setBookings([...b].reverse().slice(0, 6)))
   }, [])
 
   if (!summary) return <div className="loading">Cargando panel...</div>

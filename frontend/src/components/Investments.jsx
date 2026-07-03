@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { apiUrl } from '../lib/api'
 
 const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0)
 
@@ -26,7 +27,7 @@ export default function Investments() {
   const [saving, setSaving] = useState(false)
   const [filterCat, setFilterCat] = useState('All')
 
-  const load = () => fetch('/api/investments').then(r => r.json()).then(setItems)
+  const load = () => fetch(apiUrl('/api/investments')).then(r => r.json()).then(setItems)
 
   useEffect(() => { load() }, [])
 
@@ -36,7 +37,7 @@ export default function Investments() {
     e.preventDefault()
     if (!form.name || !form.amount) return
     setSaving(true)
-    await fetch('/api/investments', {
+    await fetch(apiUrl('/api/investments'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, amount: Number(form.amount) }),
@@ -48,7 +49,7 @@ export default function Investments() {
 
   const remove = async id => {
     if (!confirm('¿Eliminar este gasto?')) return
-    await fetch(`/api/investments/${id}`, { method: 'DELETE' })
+    await fetch(apiUrl(`/api/investments/${id}`), { method: 'DELETE' })
     load()
   }
 
