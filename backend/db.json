@@ -1,0 +1,26 @@
+{
+  "bookings": [
+    {
+      "id": "1782926290624",
+      "guestName": "fdsf",
+      "checkIn": "2026-07-01",
+      "checkOut": "2026-07-08",
+      "nightlyRate": 21,
+      "platform": "Airbnb",
+      "status": "confirmed",
+      "notes": "12",
+      "createdAt": "2026-07-01T17:18:10.624Z"
+    }
+  ],
+  "investments": [
+    {
+      "id": "1782926192713",
+      "name": "hola",
+      "amount": 33,
+      "date": "2026-07-01",
+      "category": "Hipoteca",
+      "createdAt": "2026-07-01T17:16:32.713Z"
+    }
+  ],
+  "inventory": []
+}
