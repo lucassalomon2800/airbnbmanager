@@ -144,8 +144,7 @@ export default function Bookings() {
                 <th>Entrada</th>
                 <th>Salida</th>
                 <th>Noches</th>
-                <th>Tarifa / Noche</th>
-                <th>Ingresos</th>
+                <th>Ingreso</th>
                 <th>Estado</th>
                 <th></th>
               </tr>
@@ -162,9 +161,6 @@ export default function Bookings() {
                     <td>{b.checkOut}</td>
                     <td>{n}</td>
                     <td>{fmt(b.nightlyRate)}</td>
-                    <td style={{ color: cancelled ? '#aaa' : '#16a34a', fontWeight: 700, textDecoration: cancelled ? 'line-through' : 'none' }}>
-                      {fmt(n * b.nightlyRate)}
-                    </td>
                     <td>
                       <span className={`badge ${b.status === 'completed' ? 'badge-green' : b.status === 'confirmed' ? 'badge-blue' : 'badge-red'}`}>
                         {STATUS_LABEL[b.status] || b.status}
