@@ -83,7 +83,7 @@ export default function Bookings() {
               <input type="date" value={form.checkOut} onChange={e => set('checkOut', e.target.value)} required />
             </div>
             <div className="form-group">
-              <label>Tarifa por Noche ($)</label>
+              <label>Ganancia Total($)</label>
               <input type="number" min="1" step="0.01" value={form.nightlyRate} onChange={e => set('nightlyRate', e.target.value)} placeholder="150" required />
             </div>
             <div className="form-group">
